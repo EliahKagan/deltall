@@ -31,6 +31,7 @@ if test -f pyproject.toml; then
     if ! head -n1 pyproject.toml | grep -Fxq "$helper_comment"; then
         die "existing pyproject.toml not by chronicall or not for \"$package\""
     fi
+    printf 'A matching pyproject.toml already exists. It will be used.\n'
 else
     # pyproject.toml doesn't exist for the helper package, so create it.
     cat >pyproject.toml <<EOF
@@ -46,6 +47,7 @@ version = "0.1.0"
 description = "Helper package for chronicall script"
 dependencies = ["$package"]
 EOF
+    printf 'New pyproject.toml file created.\n'
 fi
 
 # Ensure suitable .venv-chronicall and .tox-chronicall directories.
