@@ -8,20 +8,17 @@ die() {
     exit 2
 }
 
-# Quit now if this script cannot work at all, regardless of its arguments.
 if ((BASH_VERSINFO[0] < 4)); then
     die 'need Bash version 4 or higher'
 fi
 
-# Set an option that is unavailable in too-low Bash versions.
 shopt -s lastpipe
 
-# Constants that *might* change in major script changes or forks/adaptations.
 readonly my_name='chronicall'
 readonly outer_manifest='pyproject.toml'
 readonly outer_venv=".venv-$my_name"
 readonly toxdir=".tox-$my_name"
-readonly allfile='__all__.txt'  # Filename used for __all__ content list files.
+readonly allfile='__all__.txt'  # Filename used for __all__ content-list files.
 
 # Arrange a portable way to reverse text line-by-line.
 if command -v tac >/dev/null; then
@@ -32,11 +29,46 @@ if command -v tac >/dev/null; then
 else
     # shellcheck disable=SC2120  # It's okay if the caller passes no arguments.
     portable_tac() {
-        # Line-by-line reverse. Like tac, but slow, and supports any POSIX
-        # system. This is a classic; see https://unix.stackexchange.com/a/9358.
+        # Like tac, but slow, and supports any POSIX system.
+        # This is a classic; see https://unix.stackexchange.com/a/9358.
         sed '1!G;h;$!d' "$@"
     }
 fi
+
+run_comm() {
+    # Run comm locale-independently and indent the results.
+    LC_COLLATE='C' comm "$@" | sed 's/^/    /'
+}
+
+report() {
+    # We will retrieve data for the report using a global "versions" array.
+    local -ri count="${#versions[@]}"
+    local count_phrase
+
+    local -i index
+    local old new
+    local -a paths
+
+    if ((count == 1)); then
+        count_phrase="$count version"
+    else
+        count_phrase="$count versions"
+    fi
+
+    printf '### %s report for %s, %s, checking %s.__all__\n' \
+        "$my_name" "$package" "$count_phrase" "$module"
+
+    # Collect output from each tox environment and present the pairwise diffs.
+    for ((index = 1; index < count; ++index)); do
+        old="${versions[index-1]}" new="${versions[index]}"
+        paths=("$toxdir/$old/$allfile" "$toxdir/$new/$allfile")
+        printf "\nChanges from %s to %s...\n" "$old" "$new"
+        printf "Added:\n"
+        run_comm -13 -- "${paths[@]}"
+        printf "Removed:\n"
+        run_comm -23 -- "${paths[@]}"
+    done
+}
 
 # Parse command-line arguments.
 if (($# < 2 || $# > 4)); then
@@ -132,39 +164,5 @@ commands =
 EOF
 
 TOX_WORK_DIR="$toxdir" tox
-
-run_comm() {
-    LC_COLLATE='C' comm "$@" | sed 's/^/    /'
-}
-
-report() {
-    local -ri count="${#versions[@]}"  # Use our global "versions" array.
-    local count_phrase
-
-    local -i index
-    local old new
-    local -a paths
-
-    if ((count == 1)); then
-        count_phrase="$count version"
-    else
-        count_phrase="$count versions"
-    fi
-
-    printf '### %s report for %s, %s, checking %s.__all__\n' \
-        "$my_name" "$package" "$count_phrase" "$module"
-
-    # Collect output from each environment.
-    for ((index = 1; index < count; ++index)); do
-        old="${versions[index-1]}" new="${versions[index]}"
-        paths=("$toxdir/$old/$allfile" "$toxdir/$new/$allfile")
-        printf "\nChanges from %s to %s...\n" "$old" "$new"
-        printf "Added:\n"
-        run_comm -13 -- "${paths[@]}"
-        printf "Removed:\n"
-        run_comm -23 -- "${paths[@]}"
-    done
-}
-
 report | tee report.txt
 printf '\nReport generated successfully.\n'
