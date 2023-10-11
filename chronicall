@@ -8,12 +8,8 @@ die() {
     exit 2
 }
 
-# Check requirements.
 if ((BASH_VERSINFO[0] < 4)); then
     die 'need Bash version 4 or higher'
-fi
-if ! sort --version | head -n1 | grep -Fq 'GNU'; then
-    die 'need GNU sort'
 fi
 
 shopt -s lastpipe
@@ -69,11 +65,17 @@ done
 python -m pip install -U pip setuptools wheel
 pip install -U 'tox>=4,<5'
 
+portable_tac() {
+    # Line-by-line reverse. Like tac, but slow, and supports all POSIX systems.
+    # This is a classic; see https://unix.stackexchange.com/a/9358.
+    sed '1!G;h;$!d'
+}
+
 # Build an array of non-yanked non-prerelease versions of the package.
 # These are versions installable with the specified <python>.
 pip index versions "$package" |
     sed -n '/Available versions: /{s///; s/, /\n/gp}' |
-    sort -V |
+    portable_tac |
     mapfile -t versions
 
 create_tox_ini() (
