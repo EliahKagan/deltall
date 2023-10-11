@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: 0BSD
+
+set -eo pipefail
+
+package='GitPython'
+
+curl "https://pypi.org/pypi/$package/json" | jq -r '
+    .releases
+    | to_entries[]
+    | select(.key | test("[a-z]"; "i") | not)  # Omit pre- and post-releases.
+    | select(.value[0].yanked | not)
+    | .key
+' | sort -V
