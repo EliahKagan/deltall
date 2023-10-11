@@ -40,14 +40,11 @@ $helper_comment
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-[metadata]
+[project]
 name = "chronicall-helper-$package"
 version = "0.1.0"
 description = "Helper package for chronicall script"
-classifiers = ["Development Status :: 3 - Alpha"]
-
-[options]
-install_requires = ["$package"]
+dependencies = ["$package"]
 EOF
 fi
 
