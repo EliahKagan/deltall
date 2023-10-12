@@ -159,11 +159,12 @@ $(
     done
 )
 allowlist_externals =
-    sh
+    bash
 setenv =
-    PY_SCRIPT = import $module; print(*$module.__all__, sep="\\n")
+    PY_CODE = import $module; print(*$module.__all__, sep="\\n")
+    SHELLOPTS = pipefail
 commands =
-    sh -c 'python -c "\$PY_SCRIPT" | LC_COLLATE="C" sort -u >{envdir}/$allfile'
+    bash -c 'python -c "\$PY_CODE" | LC_COLLATE="C" sort -u >{envdir}/$allfile'
 EOF
 
 TOX_WORK_DIR="$toxdir" tox
