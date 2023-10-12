@@ -130,7 +130,8 @@ fi
 # installable with the specified <python> and, if <regex> was passed, match it.
 # (This is the key reason we use an outer venv, though we also use it for tox.)
 python -m pip index versions "$package" |
-    sed -n '/Available versions: /{s///; s/, /\n/gp}' |
+    sed -n 's/^Available versions: //p' |
+    sed 's/, */\n/g' |
     grep -Ee "$regex" |
     portable_tac |
     mapfile -t versions
