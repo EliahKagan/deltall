@@ -109,8 +109,8 @@ deltall python3.9 GitPython git '^3\.0\.[6-9]$|^3\.1\.'
 
 `deltall` creates an "outer" virtual environment using the interpreter you
 specify, updates PyPA packages (such as `pip`) in that environment, and then
-uses `pip index versions` to find out about all **non-prerelease, non-yanked
-versions of the package that are compatible with that interpreter**.
+uses `pip index versions` to find out about all non-prerelease, non-yanked
+versions of the package that are compatible with that interpreter.
 
 Prereleases are omitted because stability in `__all__` (and otherwise) would
 not ordinarily be assumed. Yanked versions are omitted because of the higher
@@ -121,15 +121,15 @@ accidentally listing a malicious dependency instead of the intended one).
 `deltall` then creates a `pypackage.toml` file for a dummy package that lists
 your package without a version constraint, and a `tox.ini` file to "test" the
 dummy package with one environment per version of its `<package>` dependency.
-It installs `tox` in the outer virtual environment and uses it **to install
-each version, import `<module>` from it, and save the contents of its `__all__`
-attribute**. This is done for each version in a separate `tox`-managed virtual
+It installs `tox` in the outer virtual environment and uses it to install each
+version, import `<module>` from it, and save the contents of its `__all__`
+attribute. This is done for each version in a separate `tox`-managed virtual
 environment (separate from each other and also from the outer virtual
 environment).
 
 If any `tox` environment failed, the script stops, though partial results can
 be examined in the files it produced in the directories inside `.tox-deltall`
-(which are never deleted automatically). Otherwise, `deltall` reports
-**additions and removals in `__all__` for each pair of consecutive versions**,
-from oldest to newest. This is written to standard output, as well as to a
-`report.txt` file in the current directory.
+(which are never deleted automatically). Otherwise, `deltall` reports additions
+and removals in `__all__` for each pair of consecutive versions, from oldest to
+newest. This is written to standard output, as well as to a `report.txt` file
+in the current directory.
