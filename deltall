@@ -14,7 +14,7 @@ fi
 
 shopt -s lastpipe
 
-readonly my_name='chronicall'
+readonly my_name='deltall'
 readonly outer_manifest='pyproject.toml'
 readonly outer_venv=".venv-$my_name"
 readonly toxdir=".tox-$my_name"

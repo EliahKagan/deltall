@@ -1,8 +1,8 @@
 <!-- SPDX-License-Identifier: 0BSD -->
 
-# chronicall - dynamic chronicle of `__all__`
+# deltall - dynamic chronicle of `__all__`
 
-`chronicall` is a Bash script that checks how the runtime value of a Python
+`deltall` is a Bash script that checks how the runtime value of a Python
 module's `__all__` attribute changes across versions of the PyPI package that
 provides the module.
 
@@ -21,14 +21,14 @@ works on WSL.)
 
 ## License
 
-chronicall is licensed under [0BSD](https://spdx.org/licenses/0BSD.html), which
-is a [“public-domain
+deltall is licensed under [0BSD](https://spdx.org/licenses/0BSD.html), which is
+a [“public-domain
 equivalent”](https://en.wikipedia.org/wiki/Public-domain-equivalent_license)
 license. See [**`LICENSE`**](LICENSE).
 
 ## Use case
 
-The uses case of `chronicall` is actually pretty narrow. *All* the following
+The uses case of `deltall` is actually pretty narrow. *All* the following
 should hold:
 
 1. **You trust the package, every version of it.** The script installs all the
@@ -74,17 +74,17 @@ limitation).
 
 ## How to use
 
-It's best to run `chronicall` in an empty directory you have created for that
+It's best to run `deltall` in an empty directory you have created for that
 purpose. The syntax is:
 
 ```sh
-chronicall <python> <package> [<module>] [<regex>]
+deltall <python> <package> [<module>] [<regex>]
 ```
 
-It's also fine to clone the `chronicall` repository itself and run the script
-from there. Change `chronicall` to `./chronicall`.
+It's also fine to clone the `deltall` repository itself and run the script from
+there. Change `deltall` to `./deltall`.
 
-When you run `chronicall`, pass the desired arguments for:
+When you run `deltall`, pass the desired arguments for:
 
 - `<python>`: Python interpreter command (e.g., `python3.9`), *and*
 - `<package>`: PyPI package name (e.g., `GitPython`).
@@ -98,7 +98,7 @@ Optionally, you can also specify:
 
 ## How it works
 
-`chronicall` creates an "outer" virtual environment using the interpreter you
+`deltall` creates an "outer" virtual environment using the interpreter you
 specify, updates PyPA packages (such as `pip`) in that environment, and then
 uses `pip index versions` to find out about all **non-prerelease, non-yanked
 versions of the package that are compatible with that interpreter**.
@@ -109,18 +109,18 @@ risk of them being uninstallable due to bugs related to dependencies, and
 because yanking is sometimes used for versions that pose special risks (e.g.,
 accidentally listing a malicious dependency instead of the intended one).
 
-`chronicall` then creates a `pypackage.toml` file for a dummy package that
-lists your package without a version constraint, and a `tox.ini` file to "test"
-the dummy package with one environment per version of its `<package>`
-dependency. It installs `tox` in the outer virtual environment and uses it to
-install each version, import `<module>` from it, and save the contents of its
-`__all__` attribute. This is done for each version in a separate `tox`-managed
-virtual environment (separate from each other and also from the outer virtual
+`deltall` then creates a `pypackage.toml` file for a dummy package that lists
+your package without a version constraint, and a `tox.ini` file to "test" the
+dummy package with one environment per version of its `<package>` dependency.
+It installs `tox` in the outer virtual environment and uses it to install each
+version, import `<module>` from it, and save the contents of its `__all__`
+attribute. This is done for each version in a separate `tox`-managed virtual
+environment (separate from each other and also from the outer virtual
 environment).
 
 If any `tox` environment failed, the script stops, though partial results can
 be examined in the files it produces in the temporary `tox` directories (which
-are not deleted automatically). Otherwise, `chronicall` reports additions and
+are not deleted automatically). Otherwise, `deltall` reports additions and
 removals in `__all__` for each pair of versions, from oldest to newest. This is
 written to standard output, as well as to a `report.txt` file in the current
 directory.
