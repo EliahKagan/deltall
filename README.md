@@ -86,8 +86,8 @@ there. Change `deltall` to `./deltall`.
 
 When you run `deltall`, pass the desired arguments for:
 
-- `<python>`: Python interpreter command (e.g., `python3.9`), *and*
-- `<package>`: PyPI package name (e.g., `GitPython`).
+- `<python>`: Python interpreter command (e.g., `python3.12`), *and*
+- `<package>`: PyPI package name (e.g., `requests`).
 
 Optionally, you can also specify:
 
@@ -95,6 +95,14 @@ Optionally, you can also specify:
   with the same name as the package is assumed, *and*
 - `<regex>` a regular expression that must match (part of) the version string,
   otherwise `^`, which matches everything, is assumed.
+
+As an example of nontrivial use, one might run this command to show changes to
+`git.__all__` provided by the `GitPython` package as seen in Python 3.9,
+considering only package versions 3.0.6 to 3.0.9 and 3.1.\*:
+
+```sh
+deltall python3.9 GitPython git '^3\.0\.[6-9]$|^3\.1\.'
+```
 
 ## How it works
 
